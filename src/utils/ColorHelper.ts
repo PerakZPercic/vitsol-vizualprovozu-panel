@@ -61,19 +61,19 @@ export class Color {
         this.b = b;
     }
 
-    getRGBA(a: number = 1) {
+    getRGBA(a = 1) {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${a})`;
     }
 }
 
 export function ColorHelper(name: string | undefined): Color | null {
     let val: string | undefined = name;
-    if (val == undefined || val == null)
+    if (val === undefined)
         return null;
     if (val.startsWith("rgb")) {
         let matches = /^rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)$/.exec(val);
         if (matches != null)
-            return new Color(parseInt(matches[1]), parseInt(matches[2]), parseInt(matches[3]));
+            return new Color(parseInt(matches[1], 10), parseInt(matches[2], 10), parseInt(matches[3], 10));
     }
     if (val[0] !== '#') {
         let c = NAMES[val];
