@@ -1,0 +1,6 @@
+{
+  "extends": "./.config/.eslintrc",
+  "rules": {
+    "curly": ["error", "multi-or-nest"]
+  }
+}
