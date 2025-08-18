@@ -1,0 +1,33 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+    "type": "panel",
+    "name": "VizualProvozu",
+    "id": "vitsol-vizualprovozu-panel",
+    "info": {
+        "keywords": [
+            "panel"
+        ],
+        "description": "Vizualizace provozu stroje",
+        "author": {
+            "name": "Vitsol"
+        },
+        "logos": {
+            "small": "img/logo.svg",
+            "large": "img/logo.svg"
+        },
+        "links": [],
+        "screenshots": [
+            {
+                "name": "Screenshot",
+                "path": "img/screen1.png"
+            }
+        ],
+        "version": "1.0.1",
+        "updated": "2025-08-14"
+    },
+    "dependencies": {
+        "grafanaDependency": ">=12.1.0",
+        "plugins": []
+    },
+    "buildMode": "production"
+}

@@ -149,7 +149,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
         let link = !df.link ? "" : encodeURI(replaceVariables(df.link, scopedVars)).replace("%EF%BB%BF", "");
 
         fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numFields}) - 0.25em); background-color: ${df.color.getRGBA(options.bgTransparency)};`)}>
-            <SVGVizual ref={(t) => {svgs.push(t);}} header={df.display} value={df.value} txtStyle={null} svgStyle={null} />
+            <SVGVizual ref={(t) => {svgs.push(t);}} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
         </a>);
     }
 
