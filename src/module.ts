@@ -33,10 +33,12 @@ export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig
   })
   .addTextInput({
     path: "image",
-    name: "Obrázek k vizuálu"
+    name: "Obrázek k vizuálu",
+    defaultValue: ""
   })
   .addBooleanSwitch({
     path: "changeSvgColor",
-    name: "Měnění obrázku podle pozadí"
+    name: "Přebarvit obrázek podle pozadí",
+    defaultValue: false
   })
 });

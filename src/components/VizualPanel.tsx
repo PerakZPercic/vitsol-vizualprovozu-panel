@@ -131,6 +131,24 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
     if (options.numFields <= 0 || data.series.length === 0 || data.series[0].fields.length < options.numFields)
         return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} />;
 
+    let bgImageStyle = `
+        mask-image: url(${options.image});
+        mask-mode: alpha;
+        mask-position: center;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+    `;
+    if (options.changeSvgColor)
+        bgImageStyle += "background-color: " + (theme.isLight ? "rgba(45, 45, 45, 0.55)" : "rgba(255, 255, 255, 0.55)") + ";";
+    else {
+        bgImageStyle += `
+            background-image: url(${options.image});
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        `;
+    }
+
     let dataFields: FieldData[] = [];
     for (let i = 0; i < data.series[0].fields.length; i++) 
         dataFields[i] = getFieldOverrides(data.series[0].fields[i]);
@@ -147,7 +165,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
     for (let i = 0; i < options.numFields; i++) {
         let df = dataFields[i];
         let link = !df.link ? "" : encodeURI(replaceVariables(df.link, scopedVars)).replace("%EF%BB%BF", "");
-
+        
         fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numFields}) - 0.25em); background-color: ${df.color.getRGBA(options.bgTransparency)};`)}>
             <SVGVizual ref={(t) => {svgs.push(t);}} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
         </a>);
@@ -169,18 +187,6 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
         svgs.map(svg => svg?.setWidth(w));
     });
 
-    let bgImage = "";
-    if (options.changeSvgColor) 
-        bgImage = "background-color: " + (theme.isLight ? "rgba(30, 30, 30, 1)" : "rgba(255, 255, 255, 1)") + ";";
-    else {
-        bgImage = `
-            background-image: url(${options.image});
-            background-position: center;
-            background-size: contain;
-            background-repeat: no-repeat;
-        `;
-    }
-
     return (
         <div>
             <div className={cx(css`
@@ -189,14 +195,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
 
                 width: ${width}px;
                 height: ${height}px;
-
-                ${bgImage}
-                mask-image: url(${options.image});
-                mask-mode: alpha;
-                mask-position: center;
-                mask-size: contain;
-                mask-repeat: no-repeat;
-            `)} />
+            `, css(bgImageStyle))} />
             <div className={cx(styles.card, css`
                 position: relative;
                 left: 0; top: -${height}px;
