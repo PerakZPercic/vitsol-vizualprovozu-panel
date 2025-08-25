@@ -1,6 +1,7 @@
 import { PanelPlugin, FieldConfigProperty } from '@grafana/data';
 import { VizualOptions } from './types';
 import { VizualPanel } from 'components/VizualPanel';
+import { GroupEditor } from 'components/GroupEditor';
 
 export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig({
   disableStandardOptions: [
@@ -46,12 +47,14 @@ export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig
 .setPanelOptions(bldr => {
   return bldr.addNumberInput({
     path: "numFields",
-    name: "Počet hodnot ve vizuálu",
+    name: "Fields",
+    description: "Number of fields in the vizual",
     defaultValue: 2
   })
   .addSliderInput({
     path: "bgTransparency",
-    name: "Průhlednost pozadí karty",
+    name: "Field transparency",
+    description: "Background transparency of the fields",
     defaultValue: 0.8,
     settings: {
       min: 0,
@@ -61,12 +64,20 @@ export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig
   })
   .addTextInput({
     path: "image",
-    name: "Obrázek k vizuálu",
+    name: "Image",
+    description: "background image",
     defaultValue: ""
   })
   .addBooleanSwitch({
     path: "changeSvgColor",
-    name: "Přebarvit obrázek podle pozadí",
+    name: "Change image color",
+    description: "Change color based on theme",
     defaultValue: false
+  })
+  .addCustomEditor({
+    id: "groups",
+    path: "groups",
+    name: "Groups",
+    editor: GroupEditor
   })
 });
