@@ -1,9 +1,10 @@
 import { PanelPlugin, FieldConfigProperty } from '@grafana/data';
-import { VizualOptions } from './types';
+import { VizualFieldConfig, VizualOptions } from './types';
 import { VizualPanel } from 'components/VizualPanel';
 import { GroupEditor } from 'components/GroupEditor';
+import { GroupSelectorEditor } from 'components/GroupSelectorEditor';
 
-export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig({
+export const plugin = new PanelPlugin<VizualOptions, VizualFieldConfig>(VizualPanel).useFieldConfig({
   disableStandardOptions: [
     FieldConfigProperty.Thresholds,
     FieldConfigProperty.Filterable,
@@ -30,15 +31,30 @@ export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig
     }
   },
   useCustomConfig(builder) {
-    return builder.addSelect({
-      path: "test",
-      name: "Value",
-      settings: {
-        allowCustomValue: false,
-        options: [
-          {label: "Test", value: ""},
-          {label: "test2", value: 3}
-        ]
+    return builder.addCustomEditor({
+      id: "groups",
+      path: "groups",
+      name: "Groups",
+      editor: GroupEditor,
+      override: GroupEditor,
+      process(value, context, settings) {
+        return value;
+      },
+      shouldApply() {
+        return true;
+      },
+      hideFromOverrides: true
+    }).addCustomEditor({
+      id: "fieldGroup",
+      path: "fieldGroup",
+      name: "Group",
+      editor: GroupSelectorEditor,
+      override: GroupSelectorEditor,
+      process(value, context, settings) {
+        return value;
+      },
+      shouldApply() {
+        return true
       },
       hideFromDefaults: true
     })
@@ -49,7 +65,7 @@ export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig
     path: "numFields",
     name: "Fields",
     description: "Number of fields in the vizual",
-    defaultValue: 2
+    defaultValue: 2,
   })
   .addSliderInput({
     path: "bgTransparency",
@@ -74,10 +90,10 @@ export const plugin = new PanelPlugin<VizualOptions>(VizualPanel).useFieldConfig
     description: "Change color based on theme",
     defaultValue: false
   })
-  .addCustomEditor({
+  /*.addCustomEditor({
     id: "groups",
     path: "groups",
     name: "Groups",
     editor: GroupEditor
-  })
+  })*/
 });

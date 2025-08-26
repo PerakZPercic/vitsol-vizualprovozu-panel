@@ -5,5 +5,9 @@ export interface VizualOptions {
   bgTransparency: number;
   image: string;
   changeSvgColor: boolean;
-  groups: GroupDefinition[];
 };
+
+export interface VizualFieldConfig {
+  groups: GroupDefinition[];
+  fieldGroup: GroupDefinition;
+}
