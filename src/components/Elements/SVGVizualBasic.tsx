@@ -1,6 +1,7 @@
 import React from "react";
-import { SVGVizual } from "./SVGVizual";
 import { css } from "@emotion/css";
+
+import { SVGVizual } from "./SVGVizual";
 
 interface Props {
     header: string;
