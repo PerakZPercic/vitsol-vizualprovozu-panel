@@ -1,25 +1,36 @@
 /*eslint react-hooks/rules-of-hooks: 0*/
-import React, { useEffect } from 'react';
-import { Field, PanelProps, ScopedVars, ValueMappingResult } from '@grafana/data';
-import { VizualOptions } from 'types';
+import React, { ReactElement, useEffect } from 'react';
+import { Field, FieldConfig, PanelProps, ScopedVars, ValueMappingResult } from '@grafana/data';
+import { VizualFieldConfig, VizualOptions } from 'types';
 import { css, cx } from '@emotion/css';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { PanelDataErrorView } from '@grafana/runtime';
 
-import { SVGVizual } from './SVGVizual';
 import { Color, ColorHelper } from '../utils/ColorHelper';
 import ctrrib from 'utils/CondAttrib';
 
+import { GroupDefinition } from './Group/GroupEditorRow';
+import { SVGVizual } from './Elements/SVGVizual';
+import { SVGVizualBasic } from './Elements/SVGVizualBasic';
+import { SVGVizualGroup } from './Elements/SVGVizualGroup';
+
 interface Props extends PanelProps<VizualOptions> {}
 
-type TSVGViz = SVGVizual | null;
+type TSVG = SVGVizual | null
 type FieldData = {
-    name: string,
-    display: string,
-    color: Color,
-    link: string | null,
-    value: any
+    name: string;
+    display: string;
+    color: Color;
+    link: string | null;
+    groupIndex?: number;
+    showPrefix: boolean;
+    value: any;
 };
+type Card = {
+    name?: string;
+    isGroup: boolean;
+    fields: FieldData[] | FieldData;
+}
 
 const getStyles = () => {
     return {
@@ -57,19 +68,25 @@ function getFieldOverrides(fld: Field): FieldData {
         fd.value = md.text ?? fd.value;
     }
 
-    let cfg = fld.config;
+    let cfg: FieldConfig<VizualFieldConfig> = fld.config;
     let data: FieldData = {
         name: fld.name,
         display: cfg.displayName ?? "Unknown",
         color: cfg.color ? (ColorHelper(cfg.color.fixedColor) ?? Color.BLACK) : Color.BLACK,
         link: null,
+        groupIndex: undefined,
+        showPrefix: false,
         value: fld.values[0]
     };
 
-    if (cfg.mappings === undefined)
-        return data;
+    if (cfg.custom != null) {
+        data.groupIndex = cfg.custom.fieldGroup;
+        data.showPrefix = cfg.custom.showPrefix;
+    }
     if (cfg.links != null && cfg.links.length > 0)
         data.link = cfg.links[0].url;
+    if (cfg.mappings === undefined)
+        return data;
 
     cfg.mappings.map(m => {
         let mr = m.options.result;
@@ -128,7 +145,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
     const theme = useTheme2();
     const styles = useStyles2(getStyles);
 
-    if (options.numFields <= 0 || data.series.length === 0 || data.series[0].fields.length < options.numFields)
+    if (options.numCards <= 0 || data.series.length === 0)
         return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} />;
 
     let bgImageStyle = `
@@ -138,7 +155,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
         mask-size: contain;
         mask-repeat: no-repeat;
     `;
-    if (options.changeSvgColor)
+    if (options.changeImgColor)
         bgImageStyle += "background-color: " + (theme.isLight ? "rgba(45, 45, 45, 0.55)" : "rgba(255, 255, 255, 0.55)") + ";";
     else {
         bgImageStyle += `
@@ -150,11 +167,45 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
     }
 
     let dataFields: FieldData[] = [];
-    for (let i = 0; i < data.series[0].fields.length; i++) 
-        dataFields[i] = getFieldOverrides(data.series[0].fields[i]);
+    for (let i = 0; i < data.series[0].fields.length; i++) {
+        let fld = data.series[0].fields[i];
+        if (fld === undefined)
+            continue;
 
-    let fields = [];
-    let svgs: TSVGViz[] = [];
+        dataFields[i] = getFieldOverrides(fld);
+    }
+
+    let cards: Card[] = [];
+    for (let i = 0; i < options.groups.length; i++) {
+        let g: GroupDefinition = options.groups[i];
+        cards[g.cardId] = {
+            name: g.name,
+            isGroup: true,
+            fields: []
+        };
+    }
+
+    let cpos = 0;
+    for (let i = 0; i < dataFields.length; i++) {
+        let df = dataFields[i];
+        if (df.groupIndex !== undefined) {
+            if (cards[df.groupIndex] !== undefined && cards[df.groupIndex].isGroup) {
+                (cards[df.groupIndex].fields as FieldData[]).push(df);
+                continue;
+            }
+        }
+
+        while (cards[cpos] !== undefined)
+            cpos++;
+
+        cards[cpos] = {
+            isGroup: false,
+            fields: df
+        };
+    }
+
+    let fields: ReactElement[] = [];
+    let svgs: TSVG[] = [];
     let scopedVars: ScopedVars = {
         __data: {
             value: {
@@ -162,7 +213,36 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
             }
         }
     };
-    for (let i = 0; i < options.numFields; i++) {
+    for (let i = 0; i < options.numCards; i++) {
+        let card: Card | undefined = cards[i];
+        if (card === undefined)
+            continue;
+
+        if (!card.isGroup) {
+            let df = card.fields as FieldData;
+            const vars = {
+                ...scopedVars,
+                __value: {
+                    value: {
+                        text: df.value as string,
+                        numeric: parseFloat(df.value),
+                        raw: df.value
+                    }
+                }
+            };
+            
+            let link = !df.link ? "" : encodeURI(replaceVariables(df.link, vars)).replace("%EF%BB%BF", "");
+        
+            fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${df.color.getRGBA(options.bgTransparency)};`)}>
+                <SVGVizualBasic ref={(t) => {svgs.push(t);}} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
+            </a>);
+        } else {
+            fields.push(<a className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: pink;`)}>
+                <SVGVizualGroup />
+            </a>);
+        }
+    }
+    /*for (let i = 0; i < options.numFields; i++) {
         let df = dataFields[i];
         const vars = {
             ...scopedVars,
@@ -196,7 +276,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
 
         // Set width of each viewbox
         svgs.map(svg => svg?.setWidth(w));
-    });
+    });*/
 
     return (
         <div>

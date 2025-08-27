@@ -50,7 +50,7 @@ export const GroupEditorModal = ({value, onChange, onClose}: Props) => {
             ...rows, 
             {
                 name: undefined,
-                fieldId: 0
+                cardId: 0
             }
         ])
     }
@@ -76,7 +76,7 @@ export const GroupEditorModal = ({value, onChange, onClose}: Props) => {
                     <thead>
                         <tr>
                             <th style={{textAlign: "left"}} colSpan={1}>Name</th>
-                            <th style={{textAlign: "left"}} colSpan={1}>Field</th>
+                            <th style={{textAlign: "left"}} colSpan={1}>Card ID</th>
                             <th style={{width: "1%"}}></th>
                         </tr>
                     </thead>

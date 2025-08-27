@@ -3,7 +3,7 @@ import { IconButton, Input } from "@grafana/ui";
 
 export interface GroupDefinition {
     name?: string;
-    fieldId: number;
+    cardId: number;
 };
 
 interface Props {
@@ -26,9 +26,9 @@ export const GroupEditorRow = ({ group, index, onChange, onRemove }: Props) => {
         update(g => g.name = event.currentTarget.value);
     }
     const onIdUpdate = (event: React.FormEvent<HTMLInputElement>) => {
-        let val = Math.floor(parseFloat(event.currentTarget.value));
+        let val = Math.floor(parseFloat(event.currentTarget.value) ?? "0");
         event.currentTarget.value = (Number.isNaN(val) ? 0 : val).toString();
-        update(g => g.fieldId = (Number.isNaN(val) ? 0 : val));
+        update(g => g.cardId = (Number.isNaN(val) ? 0 : val));
     }
 
     return (
@@ -44,7 +44,7 @@ export const GroupEditorRow = ({ group, index, onChange, onRemove }: Props) => {
             <td>
                 <Input 
                     type="number"
-                    value={group.fieldId}
+                    value={group.cardId}
                     placeholder="Field id"
                     onChange={onIdUpdate}
                 />

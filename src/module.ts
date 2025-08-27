@@ -1,8 +1,7 @@
 import { PanelPlugin, FieldConfigProperty } from '@grafana/data';
 import { VizualFieldConfig, VizualOptions } from './types';
 import { VizualPanel } from 'components/VizualPanel';
-import { GroupEditor } from 'components/GroupEditor';
-import { GroupSelectorEditor } from 'components/GroupSelectorEditor';
+import { GroupEditor } from 'components/Group/GroupEditor';
 
 export const plugin = new PanelPlugin<VizualOptions, VizualFieldConfig>(VizualPanel).useFieldConfig({
   disableStandardOptions: [
@@ -31,46 +30,36 @@ export const plugin = new PanelPlugin<VizualOptions, VizualFieldConfig>(VizualPa
     }
   },
   useCustomConfig(builder) {
-    return builder.addCustomEditor({
-      id: "groups",
-      path: "groups",
-      name: "Groups",
-      editor: GroupEditor,
-      override: GroupEditor,
-      process(value, context, settings) {
-        return value;
-      },
-      shouldApply() {
-        return true;
-      },
-      hideFromOverrides: true
-    }).addCustomEditor({
-      id: "fieldGroup",
+    return builder.addNumberInput({
       path: "fieldGroup",
       name: "Group",
-      editor: GroupSelectorEditor,
-      override: GroupSelectorEditor,
-      process(value, context, settings) {
-        return value;
-      },
-      shouldApply() {
-        return true
-      },
+      defaultValue: undefined,
+      hideFromDefaults: true,
+      settings: {
+        step: 1,
+        min: 0
+      }
+    })
+    .addBooleanSwitch({
+      path: "showPrefix",
+      name: "Show prefix",
+      description: "Prefixes the value with the field name",
+      defaultValue: true,
       hideFromDefaults: true
     })
   },
 })
 .setPanelOptions(bldr => {
   return bldr.addNumberInput({
-    path: "numFields",
+    path: "numCards",
     name: "Fields",
-    description: "Number of fields in the vizual",
+    description: "Number of cards in the vizual",
     defaultValue: 2,
   })
   .addSliderInput({
     path: "bgTransparency",
-    name: "Field transparency",
-    description: "Background transparency of the fields",
+    name: "Card transparency",
+    description: "Background transparency of the card",
     defaultValue: 0.8,
     settings: {
       min: 0,
@@ -85,15 +74,16 @@ export const plugin = new PanelPlugin<VizualOptions, VizualFieldConfig>(VizualPa
     defaultValue: ""
   })
   .addBooleanSwitch({
-    path: "changeSvgColor",
+    path: "changeImgColor",
     name: "Change image color",
     description: "Change color based on theme",
     defaultValue: false
   })
-  /*.addCustomEditor({
+  .addCustomEditor({
     id: "groups",
     path: "groups",
     name: "Groups",
-    editor: GroupEditor
-  })*/
+    editor: GroupEditor,
+    defaultValue: []
+  })
 });

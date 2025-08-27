@@ -1,13 +1,14 @@
-import { GroupDefinition } from "components/GroupEditorRow";
+import { GroupDefinition } from "components/Group/GroupEditorRow";
 
 export interface VizualOptions {
-  numFields: number;
+  numCards: number;
   bgTransparency: number;
   image: string;
-  changeSvgColor: boolean;
+  changeImgColor: boolean;
+  groups: GroupDefinition[];
 };
 
 export interface VizualFieldConfig {
-  groups: GroupDefinition[];
-  fieldGroup: GroupDefinition;
+  fieldGroup?: number;
+  showPrefix: boolean;
 }
