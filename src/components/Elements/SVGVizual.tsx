@@ -77,7 +77,7 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
             s.h += bb.height;
         });
 
-        if (flr(this.state.width) != flr(s.w) || flr(this.state.height) != flr(s.h)) {
+        if (flr(this.state.width) !== flr(s.w) || flr(this.state.height) !== flr(s.h)) {
             this.setState({
                 ...this.state,
                 width: s.w,
@@ -92,7 +92,7 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
     render(): React.ReactNode {
         const { width, height } = this.state;
 
-        const vb = `0 0 ${width} ${Math.max(height - 3, 0)}`;
+        const vb = `0 0 ${width} ${Math.max(height, 0)}`;
         return (<svg className={css({
             width: "100%",
             boxSizing: "border-box",

@@ -1,5 +1,4 @@
 import React, { ReactElement } from "react";
-import { css } from "@emotion/css";
 
 import { type FieldData } from "../VizualPanel";
 import { SVGVizual } from "./SVGVizual";
@@ -10,7 +9,7 @@ interface Props {
 
 export class SVGVizualGroup extends SVGVizual<Props> {
     protected createVizual(w: number, h: number): React.ReactNode | undefined {
-        let py: number = -1;
+        let py = -1;
         let txts: ReactElement[] = [];
         for (let i = 0; i < this.props.fields.length; i++) {
             let fld: FieldData | undefined = this.props.fields[i];
@@ -29,11 +28,11 @@ export class SVGVizualGroup extends SVGVizual<Props> {
 
                 const bb = t.getBBox();
                 if (py < 0)
-                    py = bb.height - 3;
+                    py = bb.height - (bb.height / 4);
 
                 t.setAttribute("x", ((w - bb.width) / 2).toString());
                 t.setAttribute("y", py.toString());
-                py += bb.height - 3;
+                py += bb.height;
             }));
         }
         
