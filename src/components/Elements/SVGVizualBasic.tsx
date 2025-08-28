@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import { css } from "@emotion/css";
 
 import { SVGVizual } from "./SVGVizual";
@@ -10,26 +10,44 @@ interface Props {
 }
 
 export class SVGVizualBasic extends SVGVizual<Props> {
-    private _header: SVGTextElement | null = null;
-    private _value: SVGTextElement | null = null;
+    protected createVizual(w: number, h: number): React.ReactNode | undefined {
+        let header: ReactElement | undefined = undefined;
+        let py: number = -1;
+        if (!this.props.removeHeader) {
+            header = this.addText(this.props.header, "header", {
+                className: css({
+                    fontWeight: "normal",
+                    fontSize: "75%"
+                })
+            }, t => {
+                if (t === null)
+                    return;
 
-    protected createVizual(): React.ReactNode | undefined {
-        let header = this.addText(this.props.header, {
-            ref: (t) => this._header = t,
-            className: css({
-                fontWeight: "normal",
-                fontSize: "75%"
-            })
-        });
-        let value = this.addText(this.props.value, {
-            ref: (t) => this._value = t,
+                const bb = t.getBBox();
+                t.setAttribute("x", ((w - bb.width) / 2).toString());
+                t.setAttribute("y", (bb.height - 3).toString());
+                py += (bb.height * 2) - 3;
+            });
+        }
+
+        let value = this.addText(this.props.value, "value", {
             className: css({
                 fontWeight: "bold"
             })
+        }, t => {
+            if (t === null)
+                return;
+
+            const bb = t.getBBox();
+            if (py < 0)
+                py = bb.height - 3;
+
+            t.setAttribute("x", ((w - bb.width) / 2).toString());
+            t.setAttribute("y", py.toString());
         });
 
         return (<>
-            {!this.props.removeHeader ? header : ""}
+            {header}
             {value}
         </>);
     }

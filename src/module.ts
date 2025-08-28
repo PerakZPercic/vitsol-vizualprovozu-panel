@@ -44,7 +44,7 @@ export const plugin = new PanelPlugin<VizualOptions, VizualFieldConfig>(VizualPa
       path: "showPrefix",
       name: "Show prefix",
       description: "Prefixes the value with the field name",
-      defaultValue: true,
+      defaultValue: false,
       hideFromDefaults: true
     })
   },

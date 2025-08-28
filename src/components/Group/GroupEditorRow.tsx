@@ -1,9 +1,12 @@
 import React, { useCallback } from "react";
-import { IconButton, Input } from "@grafana/ui";
+import { ColorPicker, IconButton, Input } from "@grafana/ui";
+
+import { Color, ColorHelper } from "utils/ColorHelper";
 
 export interface GroupDefinition {
     name?: string;
     cardId: number;
+    color: Color | null;
 };
 
 interface Props {
@@ -30,6 +33,9 @@ export const GroupEditorRow = ({ group, index, onChange, onRemove }: Props) => {
         event.currentTarget.value = (Number.isNaN(val) ? 0 : val).toString();
         update(g => g.cardId = (Number.isNaN(val) ? 0 : val));
     }
+    const onColorUpdate = (c: string) => {
+        update(g => g.color = ColorHelper(c));
+    }
 
     return (
         <tr>
@@ -48,6 +54,9 @@ export const GroupEditorRow = ({ group, index, onChange, onRemove }: Props) => {
                     placeholder="Field id"
                     onChange={onIdUpdate}
                 />
+            </td>
+            <td>
+                <ColorPicker onChange={onColorUpdate} color={group.color === null ? "#000000" : group.color.getRGBA(1)} enableNamedColors />
             </td>
             <td>
                 <IconButton 

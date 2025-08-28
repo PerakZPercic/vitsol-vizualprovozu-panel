@@ -1,5 +1,5 @@
 /*eslint react-hooks/rules-of-hooks: 0*/
-import React, { ReactElement, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { Field, FieldConfig, PanelProps, ScopedVars, ValueMappingResult } from '@grafana/data';
 import { VizualFieldConfig, VizualOptions } from 'types';
 import { css, cx } from '@emotion/css';
@@ -17,7 +17,7 @@ import { SVGVizualGroup } from './Elements/SVGVizualGroup';
 interface Props extends PanelProps<VizualOptions> {}
 
 type TSVG = SVGVizual | null
-type FieldData = {
+export type FieldData = {
     name: string;
     display: string;
     color: Color;
@@ -28,6 +28,7 @@ type FieldData = {
 };
 type Card = {
     name?: string;
+    color: Color | null;
     isGroup: boolean;
     fields: FieldData[] | FieldData;
 }
@@ -180,6 +181,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
         let g: GroupDefinition = options.groups[i];
         cards[g.cardId] = {
             name: g.name,
+            color: g.color,
             isGroup: true,
             fields: []
         };
@@ -199,6 +201,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
             cpos++;
 
         cards[cpos] = {
+            color: new Color(0, 0, 0),
             isGroup: false,
             fields: df
         };
@@ -238,7 +241,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
             </a>);
         } else {
             fields.push(<a className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: pink;`)}>
-                <SVGVizualGroup />
+                <SVGVizualGroup fields={card.fields as FieldData[]} />
             </a>);
         }
     }

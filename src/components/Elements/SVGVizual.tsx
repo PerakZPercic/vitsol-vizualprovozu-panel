@@ -1,19 +1,32 @@
 import React, { ReactElement } from "react";
 import { css } from "@emotion/css";
 
+type TTXT = {[key: string]: SVGTextElement | null};
+type RefCallback = (t: SVGTextElement | null) => void;
+
+export interface SVGProps {
+    OnSizeUpdate?: () => void;
+};
 export interface SVGState {
     width: number;
     height: number;
 };
 
-export class SVGVizual<P = {}> extends React.Component<P, SVGState> {
+export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
+    protected _texts: TTXT = {};
+    
     state: Readonly<SVGState> = {
         width: 0,
         height: 0
     };
 
-    protected createVizual(): React.ReactNode | undefined {return undefined;}
-    protected addText(val: string, props: React.SVGTextElementAttributes<SVGTextElement> = {}): ReactElement {
+    protected createVizual(w: number, h: number): React.ReactNode | undefined {return undefined;}
+    protected addText(val: string, id: string, props: React.SVGTextElementAttributes<SVGTextElement> = {}, ref?: RefCallback): ReactElement {
+        props.ref = t => {
+            this._texts[id] = t;
+            if (ref !== undefined)
+                ref(t);
+        };
         return (<text fill="white" {...props}>{val}</text>);
     }
     
@@ -28,6 +41,54 @@ export class SVGVizual<P = {}> extends React.Component<P, SVGState> {
         });
     }
 
+    componentDidMount(): void {
+        let s = {w: 0, h: 0};
+        Object.keys(this._texts).map(k => {
+            let txt = this._texts[k];
+            if (txt === undefined || txt === null)
+                return;
+
+            const bb = txt.getBBox();
+            if (bb.width > s.w)
+                s.w = bb.width;
+            s.h += bb.height;
+        });
+
+        this.setState({
+            ...this.state,
+            width: s.w,
+            height: s.h
+        });
+
+        if (this.props.OnSizeUpdate !== undefined)
+            this.props.OnSizeUpdate();
+    }
+    componentDidUpdate(): void {
+        let s = {w: 0, h: 0};
+        let flr: (n:  number) => number = Math.floor;
+        Object.keys(this._texts).map(k => {
+            let txt = this._texts[k];
+            if (txt === undefined || txt === null)
+                return;
+
+            const bb = txt.getBBox();
+            if (bb.width > s.w)
+                s.w = bb.width;
+            s.h += bb.height;
+        });
+
+        if (flr(this.state.width) != flr(s.w) || flr(this.state.height) != flr(s.h)) {
+            this.setState({
+                ...this.state,
+                width: s.w,
+                height: s.h
+            });
+
+            if (this.props.OnSizeUpdate !== undefined)
+                this.props.OnSizeUpdate();
+        }
+    }
+
     render(): React.ReactNode {
         const { width, height } = this.state;
 
@@ -38,7 +99,7 @@ export class SVGVizual<P = {}> extends React.Component<P, SVGState> {
             paddingLeft: "0.5em",
             paddingRight: "0.5em"
         })} viewBox={vb} xmlns="http://www.w3.org/2000/svg">
-            {this.createVizual()}
+            {this.createVizual(width, height)}
         </svg>);
     }
 };
