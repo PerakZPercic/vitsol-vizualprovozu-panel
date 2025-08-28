@@ -8,6 +8,7 @@ export interface SVGProps {
     OnSizeUpdate?: () => void;
 };
 export interface SVGState {
+    externalSet: boolean;
     width: number;
     height: number;
 };
@@ -16,6 +17,7 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
     protected _texts: TTXT = {};
     
     state: Readonly<SVGState> = {
+        externalSet: false,
         width: 0,
         height: 0
     };
@@ -36,6 +38,7 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
     setSize(w?: number, h?: number): void {
         this.setState({
             ...this.state,
+            externalSet: true,
             width: w ?? this.state.width,
             height: h ?? this.state.height
         });
@@ -56,6 +59,7 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
 
         this.setState({
             ...this.state,
+            externalSet: false,
             width: s.w,
             height: s.h
         });
@@ -63,7 +67,10 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
         if (this.props.OnSizeUpdate !== undefined)
             this.props.OnSizeUpdate();
     }
-    componentDidUpdate(): void {
+    componentDidUpdate(prevProps: SVGProps & P): void {
+        if (prevProps === this.props && this.state.externalSet)
+            return;
+
         let s = {w: 0, h: 0};
         let flr: (n:  number) => number = Math.floor;
         Object.keys(this._texts).map(k => {
@@ -80,6 +87,7 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
         if (flr(this.state.width) !== flr(s.w) || flr(this.state.height) !== flr(s.h)) {
             this.setState({
                 ...this.state,
+                externalSet: false,
                 width: s.w,
                 height: s.h
             });

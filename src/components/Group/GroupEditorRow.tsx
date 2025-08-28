@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import { ColorPicker, IconButton, Input } from "@grafana/ui";
-
 import { Color, ColorHelper } from "utils/ColorHelper";
 
 export interface GroupDefinition {

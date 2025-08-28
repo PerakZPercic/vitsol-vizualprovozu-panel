@@ -207,8 +207,24 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
         };
     }
 
-    let fields: ReactElement[] = [];
     let svgs: TSVG[] = [];
+    const onSVGUpdate = () => {
+        // Get the largest viewbox
+        let w = 0;
+        svgs.map(svg => {
+            if (svg == null)
+                return;
+
+            let s = svg.getSize();
+            if (s.w > w)
+                w = s.w;
+        });
+
+        // Set width of each viewbox
+        svgs.map(svg => svg?.setSize(w));
+    };
+
+    let fields: ReactElement[] = [];
     let scopedVars: ScopedVars = {
         __data: {
             value: {
@@ -237,34 +253,15 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
             let link = !df.link ? "" : encodeURI(replaceVariables(df.link, vars)).replace("%EF%BB%BF", "");
         
             fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${df.color.getRGBA(options.bgTransparency)};`)}>
-                <SVGVizualBasic ref={(t) => {svgs.push(t);}} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
+                <SVGVizualBasic OnSizeUpdate={onSVGUpdate} ref={t => svgs.push(t)} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
             </a>);
         } else {
-            fields.push(<a className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: pink;`)}>
-                <SVGVizualGroup fields={card.fields as FieldData[]} />
+            fields.push(<a className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${card.color === null ? "#000000cc" : card.color.getRGBA(options.bgTransparency)};`)}>
+                <SVGVizualGroup OnSizeUpdate={onSVGUpdate} ref={t => svgs.push(t)} fields={card.fields as FieldData[]} />
             </a>);
         }
     }
-    /*for (let i = 0; i < options.numFields; i++) {
-        let df = dataFields[i];
-        const vars = {
-            ...scopedVars,
-            __value: {
-                value: {
-                    text: df.value as string,
-                    numeric: parseFloat(df.value),
-                    raw: df.value
-                }
-            }
-        };
-        
-        let link = !df.link ? "" : encodeURI(replaceVariables(df.link, vars)).replace("%EF%BB%BF", "");
-        
-        fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numFields}) - 0.25em); background-color: ${df.color.getRGBA(options.bgTransparency)};`)}>
-            <SVGVizual ref={(t) => {svgs.push(t);}} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
-        </a>);
-    }
-
+    /*
     useEffect(() => {
         // Get the largest viewbox
         let w = 0;
