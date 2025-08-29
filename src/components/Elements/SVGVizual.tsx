@@ -15,6 +15,7 @@ export interface SVGState {
 
 export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
     protected _texts: TTXT = {};
+    protected _isMounted = false;
     
     state: Readonly<SVGState> = {
         externalSet: false,
@@ -36,6 +37,9 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
         return {w: this.state.width, h: this.state.height};
     }
     setSize(w?: number, h?: number): void {
+        if (!this._isMounted)
+            return;
+
         this.setState({
             ...this.state,
             externalSet: true,
@@ -62,10 +66,11 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
             externalSet: false,
             width: s.w,
             height: s.h
+        }, () => {
+            this._isMounted = true;
+            if (this.props.OnSizeUpdate !== undefined)
+                this.props.OnSizeUpdate();
         });
-
-        if (this.props.OnSizeUpdate !== undefined)
-            this.props.OnSizeUpdate();
     }
     componentDidUpdate(prevProps: SVGProps & P): void {
         if (prevProps === this.props && this.state.externalSet)
@@ -90,10 +95,7 @@ export class SVGVizual<P = {}> extends React.Component<SVGProps & P, SVGState> {
                 externalSet: false,
                 width: s.w,
                 height: s.h
-            });
-
-            if (this.props.OnSizeUpdate !== undefined)
-                this.props.OnSizeUpdate();
+            }, this.props.OnSizeUpdate);
         }
     }
 

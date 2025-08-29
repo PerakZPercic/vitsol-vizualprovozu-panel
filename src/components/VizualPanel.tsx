@@ -208,16 +208,16 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
     }
 
     let svgs: TSVG[] = [];
-    const onSVGUpdate = () => {
+    const onSizeUpdate = () => {
         // Get the largest viewbox
         let w = 0;
         svgs.map(svg => {
             if (svg == null)
                 return;
 
-            let s = svg.getSize();
-            if (s.w > w)
-                w = s.w;
+            const { width } = svg.state;
+            if (width > w)
+                w = width;
         });
 
         // Set width of each viewbox
@@ -253,30 +253,14 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
             let link = !df.link ? "" : encodeURI(replaceVariables(df.link, vars)).replace("%EF%BB%BF", "");
         
             fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${df.color.getRGBA(options.bgTransparency)};`)}>
-                <SVGVizualBasic OnSizeUpdate={onSVGUpdate} ref={t => svgs.push(t)} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
+                <SVGVizualBasic key={df.name} ref={t => svgs.push(t)} OnSizeUpdate={onSizeUpdate} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
             </a>);
         } else {
             fields.push(<a className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${card.color === null ? "#000000cc" : card.color.getRGBA(options.bgTransparency)};`)}>
-                <SVGVizualGroup OnSizeUpdate={onSVGUpdate} ref={t => svgs.push(t)} fields={card.fields as FieldData[]} />
+                <SVGVizualGroup key={card.name} ref={t => svgs.push(t)} OnSizeUpdate={onSizeUpdate} fields={card.fields as FieldData[]} />
             </a>);
         }
     }
-    /*
-    useEffect(() => {
-        // Get the largest viewbox
-        let w = 0;
-        svgs.map(svg => {
-            if (svg == null)
-                return;
-
-            let sw = svg.getWidth();
-            if (sw > w)
-                w = sw;
-        });
-
-        // Set width of each viewbox
-        svgs.map(svg => svg?.setWidth(w));
-    });*/
 
     return (
         <div>
