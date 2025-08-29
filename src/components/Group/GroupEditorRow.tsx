@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { ColorPicker, IconButton, Input } from "@grafana/ui";
-import { Color, ColorHelper } from "utils/ColorHelper";
+import { Color, ColorHelper, ToRGBA } from "utils/ColorHelper";
 
 export interface GroupDefinition {
     name?: string;
@@ -55,7 +55,7 @@ export const GroupEditorRow = ({ group, index, onChange, onRemove }: Props) => {
                 />
             </td>
             <td>
-                <ColorPicker onChange={onColorUpdate} color={group.color === null ? "#000000" : group.color.getRGBA(1)} enableNamedColors />
+                <ColorPicker onChange={onColorUpdate} color={group.color === null ? "#000000" : ToRGBA(group.color, 1)} enableNamedColors />
             </td>
             <td>
                 <IconButton 

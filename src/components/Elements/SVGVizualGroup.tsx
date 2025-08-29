@@ -2,6 +2,7 @@ import React, { ReactElement } from "react";
 
 import { type FieldData } from "../VizualPanel";
 import { SVGVizual } from "./SVGVizual";
+import { ToRGBA } from "utils/ColorHelper";
 
 interface Props {
     fields: FieldData[];
@@ -18,7 +19,7 @@ export class SVGVizualGroup extends SVGVizual<Props> {
 
             let val = `${fld.showPrefix === true ? (fld.display + ": ") : ""}${fld.value}`;
             txts.push(this.addText(val, fld.display, {
-                fill: fld.color.getRGBA(1),
+                fill: ToRGBA(fld.color, 1),
                 stroke: "#000000",
                 strokeWidth: 0.3,
                 paintOrder: "stroke"

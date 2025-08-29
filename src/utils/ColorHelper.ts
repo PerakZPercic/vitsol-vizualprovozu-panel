@@ -36,44 +36,27 @@ const NAMES: { [id: string]: string | null } = {
     "super-light-purple": "#DEB6F2"
 }
 
-export class Color {
-    static BLACK = new Color(0, 0, 0);
-
+export type Color = {
     r: number;
     g: number;
     b: number;
+};
 
-    static fromHex(hcol: string): Color | null {
-        function hexToNum(s: string): number {
-            return parseInt(s, 16);
-        }
-
-        let matches = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hcol);
-        if (matches == null)
-            return null;
-
-        return new Color(hexToNum(matches[1]), hexToNum(matches[2]), hexToNum(matches[3]));
-    }
-
-    constructor(r: number, g: number, b: number) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-    }
-
-    getRGBA(a = 1) {
-        return `rgba(${this.r}, ${this.g}, ${this.b}, ${a})`;
-    }
+export function ToRGBA(c: Color, a: number): string {
+    return `rgba(${c.r}, ${c.g}, ${c.b}, ${a})`;
 }
-
 export function ColorHelper(name: string | undefined): Color | null {
+    function hexToNum(s: string): number {
+        return parseInt(s, 16);
+    }
+
     let val: string | undefined = name;
     if (val === undefined)
         return null;
     if (val.startsWith("rgb")) {
         let matches = /^rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)$/.exec(val);
         if (matches != null)
-            return new Color(parseInt(matches[1], 10), parseInt(matches[2], 10), parseInt(matches[3], 10));
+            return {r: parseInt(matches[1], 10), g: parseInt(matches[2], 10), b: parseInt(matches[3], 10)};
     }
     if (val[0] !== '#') {
         let c = NAMES[val];
@@ -83,5 +66,9 @@ export function ColorHelper(name: string | undefined): Color | null {
         val = c;
     }
 
-    return Color.fromHex(val);
+    let matches = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(val);
+    if (matches == null)
+        return null;
+
+    return {r: hexToNum(matches[1]), g: hexToNum(matches[2]), b: hexToNum(matches[3])};
 }

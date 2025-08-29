@@ -4,7 +4,6 @@ import { GrafanaTheme2 } from "@grafana/data";
 import { useStyles2, Button, Modal } from "@grafana/ui";
 
 import { GroupEditorRow, type GroupDefinition } from "./GroupEditorRow";
-import { Color } from "utils/ColorHelper";
 
 const getStyles = (theme: GrafanaTheme2) => ({
   tableWrap: css({
@@ -52,7 +51,7 @@ export const GroupEditorModal = ({value, onChange, onClose}: Props) => {
             {
                 name: undefined,
                 cardId: 0,
-                color: new Color(0, 0, 0)
+                color: {r: 0, g: 0, b: 0}
             }
         ])
     }

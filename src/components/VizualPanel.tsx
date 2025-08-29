@@ -6,7 +6,7 @@ import { css, cx } from '@emotion/css';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { PanelDataErrorView } from '@grafana/runtime';
 
-import { Color, ColorHelper } from '../utils/ColorHelper';
+import { Color, ToRGBA, ColorHelper } from '../utils/ColorHelper';
 import ctrrib from 'utils/CondAttrib';
 
 import { GroupDefinition } from './Group/GroupEditorRow';
@@ -73,7 +73,7 @@ function getFieldOverrides(fld: Field): FieldData {
     let data: FieldData = {
         name: fld.name,
         display: cfg.displayName ?? "Unknown",
-        color: cfg.color ? (ColorHelper(cfg.color.fixedColor) ?? Color.BLACK) : Color.BLACK,
+        color: cfg.color ? (ColorHelper(cfg.color.fixedColor) ?? {r: 0, g: 0, b: 0}) : {r: 0, g: 0, b: 0},
         link: null,
         groupIndex: undefined,
         showPrefix: false,
@@ -201,7 +201,7 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
             cpos++;
 
         cards[cpos] = {
-            color: new Color(0, 0, 0),
+            color: {r: 0, g: 0, b: 0},
             isGroup: false,
             fields: df
         };
@@ -252,11 +252,11 @@ export const VizualPanel: React.FC<Props> = ({options, data, width, height, fiel
             
             let link = !df.link ? "" : encodeURI(replaceVariables(df.link, vars)).replace("%EF%BB%BF", "");
         
-            fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${df.color.getRGBA(options.bgTransparency)};`)}>
+            fields.push(<a {...ctrrib(df.link != null, "href", link)} className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${ToRGBA(df.color, options.bgTransparency)};`)}>
                 <SVGVizualBasic key={df.name} ref={t => svgs.push(t)} OnSizeUpdate={onSizeUpdate} header={df.display} value={df.value} removeHeader={df.display === "_"}/>
             </a>);
         } else {
-            fields.push(<a className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${card.color === null ? "#000000cc" : card.color.getRGBA(options.bgTransparency)};`)}>
+            fields.push(<a className={cx(styles.field, css`width: calc((100% / ${options.numCards}) - 0.25em); background-color: ${card.color === null ? "#000000cc" : ToRGBA(card.color, options.bgTransparency)};`)}>
                 <SVGVizualGroup key={card.name} ref={t => svgs.push(t)} OnSizeUpdate={onSizeUpdate} fields={card.fields as FieldData[]} />
             </a>);
         }
