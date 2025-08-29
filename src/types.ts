@@ -6,6 +6,10 @@ export interface VizualOptions {
   image: string;
   changeImgColor: boolean;
   groups: GroupDefinition[];
+
+  imageInBg?: boolean;
+  changeSvgColor?: boolean;
+  numFields?: number;
 };
 
 export interface VizualFieldConfig {

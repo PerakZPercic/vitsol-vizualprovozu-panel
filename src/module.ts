@@ -1,5 +1,7 @@
 import { PanelPlugin, FieldConfigProperty } from '@grafana/data';
 import { VizualFieldConfig, VizualOptions } from './types';
+import { migrationHandler } from './migration';
+
 import { VizualPanel } from 'components/VizualPanel';
 import { GroupEditor } from 'components/Group/GroupEditor';
 
@@ -86,4 +88,4 @@ export const plugin = new PanelPlugin<VizualOptions, VizualFieldConfig>(VizualPa
     editor: GroupEditor,
     defaultValue: []
   })
-});
+}).setMigrationHandler(migrationHandler);
