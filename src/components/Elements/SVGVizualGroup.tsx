@@ -22,7 +22,8 @@ export class SVGVizualGroup extends SVGVizual<Props> {
                 fill: ToRGBA(fld.color, 1),
                 stroke: "#000000",
                 strokeWidth: 0.3,
-                paintOrder: "stroke"
+                paintOrder: "stroke",
+                fontWeight: "bold"
             }, t => {
                 if (t == null)
                     return;
